@@ -88,6 +88,10 @@ public class Lab04 extends Application {
         root.setVgap(10);
         root.setAlignment(Pos.CENTER);
         
+        totalExpenseslbl.getStyleClass().add("label-results");
+        allowablelbl.getStyleClass().add("label-results");
+        excesslbl.getStyleClass().add("label-results");
+        savingslbl.getStyleClass().add("label-results");
         
         calculate.setOnAction(e -> {
             try {
