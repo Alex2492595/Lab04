@@ -13,6 +13,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /**
@@ -45,6 +47,11 @@ public class Lab04 extends Application {
         Label registerFeeslbl = new Label("Conference/Seminar Registration Fees: ");
         Label lodginglbl = new Label("Lodging Charges (Per Night): ");
         Label totalExpenseslbl = new Label("");
+        Label allowablelbl = new Label("");
+        Label excesslbl = new Label("");
+        Label savingslbl = new Label("");
+        
+        Text errorText = new Text();
         
         TextField daysTF = new TextField();
         TextField airfareTF = new TextField();
@@ -73,31 +80,71 @@ public class Lab04 extends Application {
         root.add(lodgingTF, 1, 7);
         root.add(calculate, 0, 8);
         root.add(totalExpenseslbl, 0, 9);
+        root.add(allowablelbl, 0, 10);
+        root.add(excesslbl, 0, 11);
+        root.add(savingslbl, 0, 12);
+        root.add(errorText, 0, 9);
         
         root.setVgap(10);
         root.setAlignment(Pos.CENTER);
         
+        
         calculate.setOnAction(e -> {
-            int days = Integer.parseInt(daysTF.getText());
-            double airfare = Integer.parseInt(airfareTF.getText());
-            double carFees = Integer.parseInt(carFeesTF.getText());
-            double miles = Integer.parseInt(milesTF.getText());
-            double parking = Integer.parseInt(parkingTF.getText());
-            double taxi = Integer.parseInt(taxiTF.getText());
-            double registerFees = Integer.parseInt(registerFeesTF.getText());
-            double lodging = Integer.parseInt(lodgingTF.getText());
-            
-            if ((parking / days) >= 10) {
-                parking -= 10 * days;
-            } else {
-                parking -= days * (parking / days);
+            try {
+                int days = Integer.parseInt(daysTF.getText());
+                double airfare = Integer.parseInt(airfareTF.getText());
+                double carFees = Integer.parseInt(carFeesTF.getText());
+                double miles = Integer.parseInt(milesTF.getText());
+                double parking = Integer.parseInt(parkingTF.getText());
+                double taxi = Integer.parseInt(taxiTF.getText());
+                double registerFees = Integer.parseInt(registerFeesTF.getText());
+                double lodging = Integer.parseInt(lodgingTF.getText());
+
+                double parkingMax = days * 10;
+                double taxiMax = days * 20;
+                double lodgingMax = days * 95;
+
+                double totalExpenses = airfare + carFees + (miles * 0.27) + parking + taxi + registerFees + (lodging * days) + (days * 37);
+                double totalAllowable = airfare + carFees + (miles * 0.27) + parkingMax + taxiMax + registerFees + lodgingMax + (days * 37);
+
+                double excess = 0;
+                double savings = 0;
+
+                if (parking > parkingMax) {
+                    excess += (parking - parkingMax);
+                } else {
+                    savings += (parkingMax - parking);
+                }
+
+                if (taxi > taxiMax) {
+                    excess += (taxi - taxiMax);
+                } else {
+                    savings += (taxiMax - taxi);
+                }
+
+                if (lodging > (lodgingMax / days)) {
+                    excess += ((lodging * days) - lodgingMax);
+                } else {
+                    savings += (lodgingMax - (lodging * days));
+                }
+
+                errorText.setText("");
+                totalExpenseslbl.setText("Total Expenses: $" + String.format("%.2f", totalExpenses));
+                allowablelbl.setText("Total Allowable Expenses: $" + String.format("%.2f", totalAllowable));
+                excesslbl.setText("Excess to be Paid: $" + String.format("%.2f", excess));
+                savingslbl.setText("Amount Saved: $" + String.format("%.2f", savings));
+                
+            } catch (NumberFormatException ex) {
+                errorText.setText("Please enter missing information.");
+                errorText.setFill(Color.FIREBRICK);
+                totalExpenseslbl.setText("");
+                allowablelbl.setText("");
+                excesslbl.setText("");
+                savingslbl.setText("");
             }
-            
-            double totalExpenses = (days * -37) + airfare + carFees + miles + parking + taxi + registerFees + lodging;
-            totalExpenseslbl.setText("Total Expenses: " + totalExpenses);
         });
         
-        Scene scene = new Scene(root, 600, 400);
+        Scene scene = new Scene(root, 600, 500);
         
         scene.getStylesheets().add("stylesheet1.css");
         stage.setScene(scene);
